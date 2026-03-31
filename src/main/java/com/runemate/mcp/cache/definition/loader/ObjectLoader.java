@@ -11,6 +11,8 @@ public class ObjectLoader extends ConfigLoader<ObjectConfig> {
 
     private static final boolean REV_220_SOUND_DATA = true;
 
+    private final EntityOpsLoader entityOpsLoader = new EntityOpsLoader();
+
     public ObjectLoader(JagexCache storage) {
         super(ConfigType.OBJECT, storage);
     }
@@ -38,16 +40,44 @@ public class ObjectLoader extends ConfigLoader<ObjectConfig> {
                 }
                 case 2 -> def.setName(JagTags.remove(stream.readString()));
                 case 5 -> {
-                    int length = stream.readUnsignedByte();
-                    if (length > 0) {
+                    int length5 = stream.readUnsignedByte();
+                    if (length5 > 0) {
                         def.setObjectTypes(null);
-                        int[] objectModels = new int[length];
+                        int[] objectModels5 = new int[length5];
 
-                        for (int index = 0; index < length; ++index) {
-                            objectModels[index] = stream.readUnsignedShort();
+                        for (int index = 0; index < length5; ++index) {
+                            objectModels5[index] = stream.readUnsignedShort();
                         }
 
-                        def.setObjectModels(objectModels);
+                        def.setObjectModels(objectModels5);
+                    }
+                }
+                case 6 -> {
+                    int length6 = stream.readUnsignedByte();
+                    if (length6 > 0) {
+                        int[] objectTypes6 = new int[length6];
+                        int[] objectModels6 = new int[length6];
+
+                        for (int index = 0; index < length6; ++index) {
+                            objectModels6[index] = stream.readInt();
+                            objectTypes6[index] = stream.readUnsignedByte();
+                        }
+
+                        def.setObjectTypes(objectTypes6);
+                        def.setObjectModels(objectModels6);
+                    }
+                }
+                case 7 -> {
+                    int length7 = stream.readUnsignedByte();
+                    if (length7 > 0) {
+                        def.setObjectTypes(null);
+                        int[] objectModels7 = new int[length7];
+
+                        for (int index = 0; index < length7; ++index) {
+                            objectModels7[index] = stream.readInt();
+                        }
+
+                        def.setObjectModels(objectModels7);
                     }
                 }
                 case 14 -> def.setSizeX(stream.readUnsignedByte());
@@ -213,26 +243,10 @@ public class ObjectLoader extends ConfigLoader<ObjectConfig> {
                 case 94 -> def.setUnknown1(true);
                 case 95 -> def.setSoundVisibility(stream.readUnsignedByte());
                 case 96 -> def.setRaise(stream.readUnsignedByte());
-                case 249 -> {
-                    int length = stream.readUnsignedByte();
-                    Map<Integer, Object> params = new HashMap<>(length);
-
-                    for (int i = 0; i < length; i++) {
-                        boolean isString = stream.readUnsignedByte() == 1;
-                        int key = stream.read24BitInt();
-                        Object value;
-
-                        if (isString) {
-                            value = stream.readString();
-                        } else {
-                            value = stream.readInt();
-                        }
-
-                        params.put(key, value);
-                    }
-
-                    def.setParams(params);
-                }
+                case 100 -> entityOpsLoader.decodeSubOp(stream);
+                case 101 -> entityOpsLoader.decodeConditionalOp(stream);
+                case 102 -> entityOpsLoader.decodeConditionalSubOp(stream);
+                case 249 -> def.setParams(stream.readParams());
                 default -> throw new UnhandledOpcodeException(opcode, ConfigType.OBJECT);
             }
         });

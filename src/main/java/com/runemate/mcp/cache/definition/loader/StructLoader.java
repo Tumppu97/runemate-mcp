@@ -5,7 +5,6 @@ import com.runemate.mcp.cache.definition.*;
 import com.runemate.mcp.cache.fs.*;
 import com.runemate.mcp.cache.util.*;
 import java.io.*;
-import java.util.*;
 
 public class StructLoader extends ConfigLoader<StructConfig> {
 
@@ -21,26 +20,7 @@ public class StructLoader extends ConfigLoader<StructConfig> {
 
         file.decode((stream, opcode) -> {
             switch (opcode) {
-                case 249 -> {
-                    int length = stream.readUnsignedByte();
-                    Map<Integer, Object> params = new HashMap<>(length);
-
-                    for (int i = 0; i < length; i++) {
-                        boolean isString = stream.readUnsignedByte() == 1;
-                        int key = stream.read24BitInt();
-                        Object value;
-
-                        if (isString) {
-                            value = stream.readString();
-                        } else {
-                            value = stream.readInt();
-                        }
-
-                        params.put(key, value);
-                    }
-
-                    def.setParams(params);
-                }
+                case 249 -> def.setParams(stream.readParams());
                 default -> throw new UnhandledOpcodeException(opcode, ConfigType.STRUCT);
             }
         });

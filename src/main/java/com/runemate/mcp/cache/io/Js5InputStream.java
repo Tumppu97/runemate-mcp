@@ -2,6 +2,7 @@ package com.runemate.mcp.cache.io;
 
 import java.io.*;
 import java.nio.*;
+import java.util.*;
 
 public class Js5InputStream extends InputStream {
 
@@ -203,6 +204,27 @@ public class Js5InputStream extends InputStream {
         byte[] b = new byte[buffer.remaining()];
         buffer.get(b);
         return b;
+    }
+
+    public Map<Integer, Object> readParams() {
+        HashMap<Integer, Object> out = new HashMap<>();
+        int size = this.readUnsignedByte();
+
+        for (int i = 0; i < size; ++i) {
+            int type = this.readUnsignedByte();
+            int key = this.read24BitInt();
+            Object value;
+            if (type == 1) {
+                value = this.readString();
+            } else if (type == 2) {
+                value = this.readLong();
+            } else {
+                value = this.readInt();
+            }
+            out.put(key, value);
+        }
+
+        return out;
     }
 
     @Override

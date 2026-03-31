@@ -13,6 +13,8 @@ public class NpcLoader extends ConfigLoader<NpcConfig> {
     private static final boolean REV_233 = true;
     private static final int DEFAULT_HEAD_ICON_ARCHIVE = -1;
 
+    private final EntityOpsLoader entityOpsLoader = new EntityOpsLoader();
+
     public NpcLoader(JagexCache storage) {
         super(ConfigType.NPC, storage);
     }
@@ -231,26 +233,10 @@ public class NpcLoader extends ConfigLoader<NpcConfig> {
                 case 145 -> def.setCanHideForOverlap(true);
                 case 146 -> def.setOverlapTintHSL(stream.readUnsignedShort());
                 case 147 -> def.setZbuf(false);
-                case 249 -> {
-                    int length = stream.readUnsignedByte();
-                    Map<Integer, Object> params = new HashMap<>(length);
-
-                    for (int i = 0; i < length; i++) {
-                        boolean isString = stream.readUnsignedByte() == 1;
-                        int key = stream.read24BitInt();
-                        Object value;
-
-                        if (isString) {
-                            value = stream.readString();
-                        } else {
-                            value = stream.readInt();
-                        }
-
-                        params.put(key, value);
-                    }
-
-                    def.setParams(params);
-                }
+                case 249 -> def.setParams(stream.readParams());
+                case 251 -> entityOpsLoader.decodeSubOp(stream);
+                case 252 -> entityOpsLoader.decodeConditionalOp(stream);
+                case 253 -> entityOpsLoader.decodeConditionalSubOp(stream);
                 default -> throw new UnhandledOpcodeException(opcode, ConfigType.NPC);
             }
         });

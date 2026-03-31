@@ -16,6 +16,8 @@ public class ItemLoader extends ConfigLoader<ItemConfig> {
         .expireAfterAccess(Duration.ofMinutes(5))
         .build();
 
+    private final EntityOpsLoader entityOpsLoader = new EntityOpsLoader();
+
     public ItemLoader(JagexCache storage) {
         super(ConfigType.ITEM, storage, CACHE);
     }
@@ -121,6 +123,23 @@ public class ItemLoader extends ConfigLoader<ItemConfig> {
                     def.setTextureReplace(textureReplace);
                 }
                 case 42 -> def.setShiftClickDropIndex(stream.readByte());
+                case 44 -> def.setInventoryModel(stream.readInt());
+                case 45 -> {
+                    def.setMaleModel0(stream.readInt());
+                    def.setMaleOffset(stream.readUnsignedByte());
+                }
+                case 46 -> def.setMaleModel1(stream.readInt());
+                case 47 -> def.setMaleModel2(stream.readInt());
+                case 48 -> {
+                    def.setFemaleModel0(stream.readInt());
+                    def.setFemaleOffset(stream.readUnsignedByte());
+                }
+                case 49 -> def.setFemaleModel1(stream.readInt());
+                case 50 -> def.setFemaleModel2(stream.readInt());
+                case 51 -> def.setMaleHeadModel(stream.readInt());
+                case 52 -> def.setMaleHeadModel2(stream.readInt());
+                case 53 -> def.setFemaleHeadModel(stream.readInt());
+                case 54 -> def.setFemaleHeadModel2(stream.readInt());
                 case 43 -> {
                     int opId = stream.readUnsignedByte();
                     if (def.getSubops() == null) {
@@ -175,26 +194,10 @@ public class ItemLoader extends ConfigLoader<ItemConfig> {
                 case 140 -> def.setCosmeticTemplateId(stream.readUnsignedShort());
                 case 148 -> def.setPlaceholderId(stream.readUnsignedShort());
                 case 149 -> def.setPlaceholderTemplateId(stream.readUnsignedShort());
-                case 249 -> {
-                    int length = stream.readUnsignedByte();
-                    Map<Integer, Object> params = new HashMap<>(length);
-
-                    for (int i = 0; i < length; i++) {
-                        boolean isString = stream.readUnsignedByte() == 1;
-                        int key = stream.read24BitInt();
-                        Object value;
-
-                        if (isString) {
-                            value = stream.readString();
-                        } else {
-                            value = stream.readInt();
-                        }
-
-                        params.put(key, value);
-                    }
-
-                    def.setParams(params);
-                }
+                case 200 -> entityOpsLoader.decodeSubOp(stream);
+                case 201 -> entityOpsLoader.decodeConditionalOp(stream);
+                case 202 -> entityOpsLoader.decodeConditionalSubOp(stream);
+                case 249 -> def.setParams(stream.readParams());
                 default -> throw new UnhandledOpcodeException(opcode, ConfigType.ITEM);
             }
         });

@@ -9,7 +9,7 @@ apply<com.runemate.mcp.gradle.DocsPlugin>()
 apply<com.runemate.mcp.gradle.ApiPlugin>()
 
 group = "com.runemate"
-version = "1.2.0"
+version = "1.3.0"
 
 repositories {
     maven("https://gitlab.com/api/v4/projects/10471880/packages/maven") //client

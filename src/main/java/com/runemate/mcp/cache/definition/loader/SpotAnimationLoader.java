@@ -22,6 +22,7 @@ public class SpotAnimationLoader extends ConfigLoader<SpotAnimationConfig> {
             switch (opcode) {
                 case 1 -> def.setModelId(stream.readUnsignedShort());
                 case 2 -> def.setAnimationId(stream.readUnsignedShort());
+                case 3 -> def.setModelId(stream.readInt());
                 case 4 -> def.setResizeX(stream.readUnsignedShort());
                 case 5 -> def.setResizeY(stream.readUnsignedShort());
                 case 6 -> def.setRotation(stream.readUnsignedShort());

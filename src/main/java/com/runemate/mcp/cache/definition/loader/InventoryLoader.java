@@ -14,7 +14,6 @@ public class InventoryLoader extends ConfigLoader<InventoryConfig> {
 
 
     @Override
-    @SuppressWarnings("SwitchStatementWithTooFewBranches")
     protected InventoryConfig decode(final Archive.File file) throws IOException, UnhandledOpcodeException {
         InventoryConfig def = new InventoryConfig();
         def.setId(file.getFileId());
@@ -22,6 +21,7 @@ public class InventoryLoader extends ConfigLoader<InventoryConfig> {
         file.decode((stream, opcode) -> {
             switch (opcode) {
                 case 2 -> def.setCapacity(stream.readUnsignedShort());
+                case 249 -> def.setParams(stream.readParams());
                 default -> throw new UnhandledOpcodeException(opcode, ConfigType.INV);
             }
         });
