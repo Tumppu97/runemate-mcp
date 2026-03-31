@@ -81,6 +81,23 @@ public class NpcLoader extends ConfigLoader<NpcConfig> {
                     }
                     def.setChatheadModels(chatheadModels);
                 }
+                case 61 -> {
+                    // 32-bit model IDs (for models exceeding unsigned short range)
+                    int length = stream.readUnsignedByte();
+                    def.setModels(new int[length]);
+                    for (int index = 0; index < length; ++index) {
+                        def.getModels()[index] = stream.readInt();
+                    }
+                }
+                case 62 -> {
+                    // 32-bit chathead model IDs
+                    int length = stream.readUnsignedByte();
+                    int[] chatheadModels32 = new int[length];
+                    for (int index = 0; index < length; ++index) {
+                        chatheadModels32[index] = stream.readInt();
+                    }
+                    def.setChatheadModels(chatheadModels32);
+                }
                 case 74 -> def.getStats()[0] = stream.readUnsignedShort();
                 case 75 -> def.getStats()[1] = stream.readUnsignedShort();
                 case 76 -> def.getStats()[2] = stream.readUnsignedShort();
@@ -210,6 +227,7 @@ public class NpcLoader extends ConfigLoader<NpcConfig> {
                 case 124 -> def.setHeight(stream.readUnsignedShort());
                 case 126 -> def.setFootprintSize(stream.readUnsignedShort());
                 case 129 -> def.setUnknown1(true);
+                case 130 -> { /* idleAnimRestart flag — no data bytes */ }
                 case 145 -> def.setCanHideForOverlap(true);
                 case 146 -> def.setOverlapTintHSL(stream.readUnsignedShort());
                 case 147 -> def.setZbuf(false);

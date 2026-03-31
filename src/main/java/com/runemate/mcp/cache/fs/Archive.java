@@ -90,7 +90,12 @@ public class Archive {
                     if (opcode == 0) {
                         break;
                     }
-                    decoder.accept(stream, opcode);
+                    try {
+                        decoder.accept(stream, opcode);
+                    } catch (UnhandledOpcodeException e) {
+                        log.warn("Unhandled opcode {} in file {} — returning partial definition", opcode, fileId);
+                        break;
+                    }
                 }
             }
         }
